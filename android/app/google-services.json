@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "409385837371",
+    "project_id": "flutter-fitbit",
+    "storage_bucket": "flutter-fitbit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:409385837371:android:eda6556f573c1551da8d1e",
+        "android_client_info": {
+          "package_name": "com.example.FitbitApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "409385837371-bjtss2lc199bmlno5q7pl7r87pvuffsg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXWqU2ungN9ZlraT9M-2HfoJYG7nd-3OA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "409385837371-bjtss2lc199bmlno5q7pl7r87pvuffsg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:409385837371:android:619a22fe0b50038bda8d1e",
+        "android_client_info": {
+          "package_name": "com.example.fitbit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "409385837371-bjtss2lc199bmlno5q7pl7r87pvuffsg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXWqU2ungN9ZlraT9M-2HfoJYG7nd-3OA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "409385837371-bjtss2lc199bmlno5q7pl7r87pvuffsg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

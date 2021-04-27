@@ -3,7 +3,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Signout extends StatelessWidget {
-  final channel = IOWebSocketChannel.connect('ws://192.168.100.30:3000/');
+  final channel = IOWebSocketChannel.connect('ws://127.0.0.1:3000/');
 
   @override
   Widget build(BuildContext context) {

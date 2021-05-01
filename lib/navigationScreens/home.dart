@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:loginapp/steps/stepsHome.dart';
-import '../steps/stepsBar.dart';
+import 'package:loginapp/gpsBar.dart';
+import 'package:loginapp/liveStepsPanel.dart';
+import '../stepsBar.dart';
 
 
 class Home extends StatelessWidget {
@@ -33,8 +34,9 @@ class Home extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            StepsHome(),
+            LiveStepsPanel(),
             StepsBar(),
+            GpsBar(),
             // MaterialButton(
             //   onPressed: () async {
             //     await FirebaseAuth.instance.signOut();

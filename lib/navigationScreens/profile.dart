@@ -4,8 +4,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-// import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:starflut/starflut.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -15,65 +16,84 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  
-  var data1;
-  var data2;
-  String access_token;
+  GoogleMapController mapController;
+  // double _originLatitude = 6.5212402, _originLongitude = 3.3679965;
+  // double _destLatitude = 6.849660, _destLongitude = 3.648190;
+  double _originLatitude = 26.48424, _originLongitude = 50.04551;
+  double _destLatitude = 26.46423, _destLongitude = 50.06358;
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+  String googleAPiKey = "AIzaSyCXWqU2ungN9ZlraT9M-2HfoJYG7nd-3OA";
 
   @override
   void initState() {
     super.initState();
-    this.getData();
-  }
 
-  void getData() async {
-    await getToken();
-    await getJsonData();
-  }
+    /// origin marker
+    _addMarker(LatLng(_originLatitude, _originLongitude), "origin",
+        BitmapDescriptor.defaultMarker);
 
-  Future<String> getToken() async {
-    String code = await rootBundle.loadString('assets/res/credentials.txt');
-    print(code);
-
-    String url = 'https://api.fitbit.com/oauth2/token?code=' +
-        code +
-        '&grant_type=authorization_code&redirect_uri=http://127.0.0.1:9000/&expires_in=604800';
-    var response = await http.post(Uri.parse(url), headers: {
-      "Authorization":
-          "Basic MjJDQ0pXOjI3ZDZmNTM3OGM0MWUzMDI2YWE3Nzg1MzdkOThlOGFi",
-      "Content-Type": "application/x-www-form-urlencoded"
-    });
-    // print(response.body);
-    access_token = json.decode(response.body)['access_token'].toString();
-    print('access tokenul -> ' + access_token);
-    setState(() {
-      data1 = jsonDecode(response.body);
-    });
-
-    return 'success';
-  }
-
-  Future<String> getJsonData() async {
-    var authn = 'Bearer ' + access_token;
-    String url =
-        'https://api.fitbit.com/1/user/-/activities/steps/date/today/today.json';
-    var response = await http.get(Uri.parse(url),
-        headers: {"Accept": "application/json", "Authorization": authn});
-
-    print(response.body);
-
-    setState(() {
-      data2 = jsonDecode(response.body);
-    });
-
-    return 'success';
+    /// destination marker
+    _addMarker(LatLng(_destLatitude, _destLongitude), "destination",
+        BitmapDescriptor.defaultMarkerWithHue(90));
+    _getPolyline();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        // child: Text(data2['best']['total'].toString()),
-        );
+    return SafeArea(
+      child: Scaffold(
+          body: GoogleMap(
+        initialCameraPosition: CameraPosition(
+            target: LatLng(_originLatitude, _originLongitude), zoom: 15),
+        myLocationEnabled: true,
+        tiltGesturesEnabled: true,
+        compassEnabled: true,
+        scrollGesturesEnabled: true,
+        zoomGesturesEnabled: true,
+        onMapCreated: _onMapCreated,
+        markers: Set<Marker>.of(markers.values),
+        polylines: Set<Polyline>.of(polylines.values),
+      )),
+    );
+  }
+
+  void _onMapCreated(GoogleMapController controller) async {
+    mapController = controller;
+  }
+
+  _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    MarkerId markerId = MarkerId(id);
+    Marker marker =
+        Marker(markerId: markerId, icon: descriptor, position: position);
+    markers[markerId] = marker;
+  }
+
+  _addPolyLine() {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+        polylineId: id,
+        width: 5,
+        color: Colors.red,
+        points: polylineCoordinates);
+    polylines[id] = polyline;
+    setState(() {});
+  }
+
+  _getPolyline() async {
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        googleAPiKey,
+        PointLatLng(_originLatitude, _originLongitude),
+        PointLatLng(_destLatitude, _destLongitude),
+        travelMode: TravelMode.driving,
+        wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")]);
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
   }
 }
-

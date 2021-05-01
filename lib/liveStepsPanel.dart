@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
-class StepsHome extends StatelessWidget {
+class LiveStepsPanel extends StatelessWidget {
   final channel = IOWebSocketChannel.connect('ws://192.168.100.30:3000/');
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class StepsHome extends StatelessWidget {
               children: [
                 Image.asset('assets/images/steps.png'),
                 Text(
-                  (snapshot.hasData ? '${snapshot.data[0]}' : ''),
+                  (snapshot.hasData ? '${snapshot.data.split(",")[0]}' : ''),
                   style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,

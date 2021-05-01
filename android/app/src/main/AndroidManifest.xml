@@ -3,10 +3,13 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />  
 	  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />  
 	  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
    <application
         android:usesCleartextTraffic="true"
         android:label="FitbitApp"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyCXWqU2ungN9ZlraT9M-2HfoJYG7nd-3OA"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

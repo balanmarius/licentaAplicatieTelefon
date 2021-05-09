@@ -14,7 +14,8 @@ class LiveStepsPanel extends StatelessWidget {
             return Column(
               //mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/images/steps.png'),
+                Image.asset('assets/images/steps.png',
+                    filterQuality: FilterQuality.high),
                 Text(
                   (snapshot.hasData ? '${snapshot.data.split(",")[0]}' : ''),
                   style: TextStyle(
@@ -23,9 +24,9 @@ class LiveStepsPanel extends StatelessWidget {
                       color: Colors.blue[900]),
                 ),
                 Text(
-                  'steps',
+                  'STEPS',
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue[900]),
                 ),

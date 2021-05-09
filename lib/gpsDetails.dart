@@ -26,70 +26,80 @@ class _GpsDetailsState extends State<GpsDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('stats')
-            .orderBy('date', descending: true)
-            .limit(1)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+    return SafeArea(
+      child: Scaffold(
+        body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('stats')
+              .orderBy('date', descending: true)
+              .limit(1)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-          if (snapshot.hasData) {
-            var lastCoordinates = {};
-            lastCoordinates['latitude'] = snapshot.data.docs[0]['latitude'];
-            lastCoordinates['longitude'] = snapshot.data.docs[0]['longitude'];
-            print(lastCoordinates);
-            return Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child:
-                  // Text('Lungimea este ' + snapshot.data.docs.length.toString()),
-                  // Text(lastCoordinates.toString()),
-                  GoogleMap(
-                mapType: MapType.normal,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(47.16663166666667, 27.560335),
-                  zoom: 15,
-                ),
-                markers: Set<Marker>.of(
-                  <Marker>[
-                    Marker(
-                        onTap: () {
-                          print('Tapped');
+            if (snapshot.hasData) {
+              var lastCoordinates = {};
+              lastCoordinates['latitude'] = snapshot.data.docs[0]['latitude'];
+              lastCoordinates['longitude'] = snapshot.data.docs[0]['longitude'];
+              print(lastCoordinates);
+              return Container(
+                margin: EdgeInsets.all(30),
+                height: MediaQuery.of(context).size.height * 0.7,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  children: <Widget>[
+                    Text("test"),
+                    Expanded(
+                      child: GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                            target: LatLng(47.16663166666667, 27.560335),
+                            zoom: 15),
+                        myLocationEnabled: true,
+                        tiltGesturesEnabled: true,
+                        compassEnabled: true,
+                        scrollGesturesEnabled: true,
+                        zoomGesturesEnabled: true,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller = controller;
                         },
-                        draggable: true,
-                        markerId: MarkerId('Marker'),
-                        position: LatLng(lastCoordinates['latitude'],
-                            lastCoordinates['longitude']),
-                        onDragEnd: ((newPosition) {
-                          print(newPosition.latitude);
-                          print(newPosition.longitude);
-                        }))
+                        markers: Set<Marker>.of(
+                          <Marker>[
+                            Marker(
+                              onTap: () {
+                                print('Tapped');
+                              },
+                              draggable: true,
+                              markerId: MarkerId('Marker'),
+                              position: LatLng(lastCoordinates['latitude'],
+                                  lastCoordinates['longitude']),
+                              onDragEnd: ((newPosition) {
+                                print(newPosition.latitude);
+                                print(newPosition.longitude);
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                onMapCreated: (GoogleMapController controller) {
-                  _controller = controller;
-                },
+              );
+            }
+
+            return ListView.builder(
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) => Container(
+                padding: EdgeInsets.all(8),
+                child: Text('This works'),
               ),
             );
-          }
-
-          return ListView.builder(
-            itemCount: snapshot.data.docs.length,
-            itemBuilder: (context, index) => Container(
-              padding: EdgeInsets.all(8),
-              child: Text('This works'),
-            ),
-          );
-        },
+          },
+        ),
       ),
-      
     );
   }
 

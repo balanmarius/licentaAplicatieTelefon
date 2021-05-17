@@ -1,25 +1,25 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:loginapp/loginpage.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'homepage.dart';
+import 'package:dcdg/dcdg.dart';
+
+import 'loginpage.dart';
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    new MaterialApp(home: new MyApp()),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: _MyAppState(),
-    );
-  }
+  _MyAppState createState() => new _MyAppState();
 }
 
-class _MyAppState extends StatelessWidget {
+class _MyAppState extends State<MyApp> {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   @override
   Widget build(BuildContext context) {

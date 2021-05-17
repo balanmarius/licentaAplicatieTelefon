@@ -5,14 +5,17 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../loginpage.dart';
 
-class Signout extends StatelessWidget {
-  final channel = IOWebSocketChannel.connect('ws://127.0.0.1:3000/');
 
+
+class Signout extends StatefulWidget {
+  @override
+  _SignoutState createState() => _SignoutState();
+}
+
+class _SignoutState extends State<Signout> {
+  final channel = IOWebSocketChannel.connect('ws://127.0.0.1:3000/');
   @override
   Widget build(BuildContext context) {
-    // return Container(
-    //   child: Text('Sign out'),
-    // );
     return StreamBuilder(
       stream: channel.stream,
       builder: (context, snapshot) {

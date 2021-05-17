@@ -1,4 +1,4 @@
-name: loginapp
+name: FitbitApp
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -52,6 +52,10 @@ dependencies:
   charts_flutter: ^0.10.0
   charts_common: ^0.10.0
   carousel_slider: ^3.0.0
+  flutter_local_notifications: ^5.0.0+4
+  dcdg: ^2.0.1
+  syncfusion_flutter_charts: ^19.1.63
+
 
 
 dev_dependencies:

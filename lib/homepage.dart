@@ -49,7 +49,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Homepage'),
+        title: Text("FitbitApp"),
       ),
       body: Center(
         child: PersistentTabView(

@@ -519,17 +519,22 @@ class _StepsDetailsState extends State<StepsDetails> {
               streamSnapshot.data.docs.forEach(
                 (DocumentSnapshot document) {
                   newDay = document.data()['date'].toDate().day;
-                  if (newDay != day) {
-                    countDays++;
-                    stepsPerDay.add(Steps(
-                        document.data()['date'].toDate().day.toString(),
-                        document.data()['steps']));
+                  if (newDay == day) {
+                    countDays--;
+                    stepsPerDay.removeLast();
                   }
+                  countDays++;
                   day = document.data()['date'].toDate().day;
+                  stepsPerDay.add(Steps(
+                      document.data()['date'].toDate().day.toString(),
+                      document.data()['steps']));
                 },
               );
-              thisWeek = stepsPerDay.sublist(countDays - 7);
-              lastWeek = stepsPerDay.sublist(countDays - 14, countDays - 7);
+              print(countDays);
+              if (countDays >= 14) {
+                thisWeek = stepsPerDay.sublist(countDays - 7);
+                lastWeek = stepsPerDay.sublist(countDays - 14, countDays - 7);
+              }
 
               thisWeek.forEach((element) {
                 avgThisWeek += element.steps;
@@ -655,7 +660,7 @@ class _StepsDetailsState extends State<StepsDetails> {
               }
             });
             avgThisYear = int.parse((avgThisYear / 12).toStringAsFixed(0));
-            print(avgThisYear);
+            // print(avgThisYear);
             var avgLastYear = 0;
             averagesLastYear.forEach((element) {
               if (element.toString() != "NaN") {
@@ -663,7 +668,7 @@ class _StepsDetailsState extends State<StepsDetails> {
               }
             });
             avgLastYear = int.parse((avgLastYear / 12).toStringAsFixed(0));
-            print(avgLastYear);
+            // print(avgLastYear);
             List<charts.Series<Steps, String>> _createComparedYears() {
               List<Steps> s = [];
               s.add(Steps("This year", avgThisYear));

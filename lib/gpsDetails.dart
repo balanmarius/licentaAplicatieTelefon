@@ -4,10 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:latlong/latlong.dart' as latLng;
 import 'package:location/location.dart';
+
+import 'exercisePage.dart';
+import 'main.dart';
 
 class GpsDetails extends StatefulWidget {
   @override
@@ -47,12 +51,12 @@ class _GpsDetailsState extends State<GpsDetails> {
               lastCoordinates['longitude'] = snapshot.data.docs[0]['longitude'];
               print(lastCoordinates);
               return Container(
-                margin: EdgeInsets.all(30),
+                margin: EdgeInsets.all(20),
                 height: MediaQuery.of(context).size.height * 0.7,
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   children: <Widget>[
-                    Text("test"),
+                    Text("Your actual position is here!"),
                     Expanded(
                       child: GoogleMap(
                         initialCameraPosition: CameraPosition(
@@ -85,6 +89,16 @@ class _GpsDetailsState extends State<GpsDetails> {
                         ),
                       ),
                     ),
+                    ElevatedButton(
+                      child: Text("Create an exercise!"),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ExercisePage()),
+                        );
+                      },
+                    )
                   ],
                 ),
               );

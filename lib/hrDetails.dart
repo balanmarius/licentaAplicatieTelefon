@@ -67,29 +67,34 @@ class _HrDetailsState extends State<HrDetails> {
                   (DocumentSnapshot document) {
                     if (document.data()['date'].toDate().month == month &&
                         document.data()['date'].toDate().day == day) {
-                      var value = document.data()["HR"];
-                      if (value.runtimeType == String) {
-                        value = int.parse(document.data()["HR"]);
+                      if (document.data()['HR'] != "null") {
+                        var value = document.data()["HR"];
+                        if (value == 'unavailable') {
+                          value = null;
+                        } else if (value.runtimeType == String) {
+                          value = int.parse(document.data()["HR"]);
+                        }
+
+                        i++;
+                        // _chartData.add(HrData(i.toString(), value));
+                        _chartData.add(
+                          HrData(
+                              document.data()['date'].toDate().hour.toString() +
+                                  ":" +
+                                  document
+                                      .data()['date']
+                                      .toDate()
+                                      .minute
+                                      .toString() +
+                                  ":" +
+                                  document
+                                      .data()['date']
+                                      .toDate()
+                                      .second
+                                      .toString(),
+                              value),
+                        );
                       }
-                      i++;
-                      // _chartData.add(HrData(i.toString(), value));
-                      _chartData.add(
-                        HrData(
-                            document.data()['date'].toDate().hour.toString() +
-                                ":" +
-                                document
-                                    .data()['date']
-                                    .toDate()
-                                    .minute
-                                    .toString() +
-                                ":" +
-                                document
-                                    .data()['date']
-                                    .toDate()
-                                    .second
-                                    .toString(),
-                            value),
-                      );
                     }
                   },
                 );

@@ -55,6 +55,7 @@ dependencies:
   flutter_local_notifications: ^5.0.0+4
   dcdg: ^2.0.1
   syncfusion_flutter_charts: ^19.1.63
+  permission: ^0.1.7
 
 
 
@@ -83,6 +84,11 @@ flutter:
   - assets/images/heartRate.png
   - assets/images/calories.png
   - assets/images/man.png
+  - assets/images/stepsanimation.gif
+  - assets/images/caloriesanimation.gif
+  - assets/images/runaanimation.gif
+  - assets/images/stairsanimation.gif
+  - assets/images/walkinganimation.gif
   - assets/res/credentials.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see

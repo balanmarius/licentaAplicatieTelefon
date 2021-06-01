@@ -1,8 +1,10 @@
+import 'package:charts_flutter/flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math' show cos, sqrt, asin;
+import 'package:flutter/src/painting/text_style.dart' as style;
 
 class ExercisePage extends StatefulWidget {
   @override
@@ -19,6 +21,16 @@ class _ExercisePageState extends State<ExercisePage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void deleteMarkersAndPolyline() {
+    polylineCoordinates.clear();
+    polylines.remove('poly');
+    polylines.clear();
+    markers.remove('origin');
+    markers.remove('destination');
+    markers.clear();
+    setState(() {});
   }
 
   void addPolyLine() {
@@ -50,7 +62,7 @@ class _ExercisePageState extends State<ExercisePage> {
     });
   }
 
-  double _coordinateDistance(lat1, lon1, lat2, lon2) {
+  double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
     var c = cos;
     var a = 0.5 -
@@ -58,6 +70,8 @@ class _ExercisePageState extends State<ExercisePage> {
         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));
   }
+
+  var _placeDistance;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +112,7 @@ class _ExercisePageState extends State<ExercisePage> {
               void _getData() async {
                 await FirebaseFirestore.instance
                     .collection("exercise")
+                    .orderBy('date', descending: true)
                     .limit(1)
                     .get()
                     .then((QuerySnapshot snapshot) {
@@ -110,19 +125,39 @@ class _ExercisePageState extends State<ExercisePage> {
 
               _getData();
 
-              _addMarker(
-                  LatLng(lastCoordinates['latitude'],
-                      lastCoordinates['longitude']),
-                  "origin",
+              _addMarker(LatLng(lat1, long1), "origin",
                   BitmapDescriptor.defaultMarker);
+
+              String _textAfterWorkout() {
+                if (_placeDistance != null) {
+                  return "Workout finished! Your route distance is " +
+                      _placeDistance.toString() +
+                      "km !";
+                } else {
+                  return "Press start and then stop to register the workout!";
+                }
+              }
+
               return Container(
                 // margin: EdgeInsets.all(20),
-                height: MediaQuery.of(context).size.height * 0.8,
+                // height: MediaQuery.of(context).size.height * 0.8,
                 width: MediaQuery.of(context).size.width,
-                child: Column(
+                child: ListView(
                   children: <Widget>[
-                    Text("EXERCISE PAGE!"),
-                    Expanded(
+                    Container(
+                      // height: MediaQuery.of(context).size.height * 0.1,
+                      padding: EdgeInsets.all(18),
+                      child: Text(
+                        "This is the exercise page! Here you can track your workout and watch the traveled route during your exercise.",
+                        style: style.TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      height: MediaQuery.of(context).size.height * 0.7,
                       child: GoogleMap(
                         initialCameraPosition: CameraPosition(
                             target: LatLng(lastCoordinates['latitude'],
@@ -141,27 +176,62 @@ class _ExercisePageState extends State<ExercisePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        ElevatedButton(
-                          child: Text("Start!"),
-                          onPressed: () {
-                            polylineCoordinates.clear();
-                            // polylines.remove('poly');
-                            var now = new DateTime.now();
-                            startExercise(lat1, long1, now);
-                          },
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          child: ElevatedButton(
+                            child: Text("Start!"),
+                            onPressed: () {
+                              deleteMarkersAndPolyline();
+                              var now = new DateTime.now();
+                              startExercise(lat1, long1, now);
+                            },
+                          ),
                         ),
-                        ElevatedButton(
-                          child: Text("Stop!"),
-                          onPressed: () {
-                            print(lat2);
-                            print(long2);
-                            _addMarker(LatLng(lat2, long2), "destination",
-                                BitmapDescriptor.defaultMarker);
-                            _makeLines(lat1, long1, lat2, long2);
-                          },
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          child: ElevatedButton(
+                            child: Text("Stop!"),
+                            onPressed: () {
+                              double totalDistance = 0.0;
+                              totalDistance +=
+                                  calculateDistance(lat1, long1, lat2, long2);
+
+                              print(lat1);
+                              print(long1);
+                              print(lat2);
+                              print(long2);
+                              setState(() {
+                                _placeDistance =
+                                    totalDistance.toStringAsFixed(2);
+                                print('DISTANCE: $_placeDistance km');
+                              });
+                              _addMarker(LatLng(lat2, long2), "destination",
+                                  BitmapDescriptor.defaultMarker);
+                              _makeLines(lat1, long1, lat2, long2);
+                            },
+                          ),
                         ),
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          child: ElevatedButton(
+                            child: Text("Clear!"),
+                            onPressed: () {
+                              deleteMarkersAndPolyline();
+                            },
+                          ),
+                        )
                       ],
-                    )
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      child: Text(
+                        _textAfterWorkout(),
+                        style: style.TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               );

@@ -50,6 +50,7 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("FitbitApp"),
+        centerTitle: true,
       ),
       body: Center(
         child: PersistentTabView(
@@ -58,7 +59,7 @@ class _HomepageState extends State<Homepage> {
           screens: _NavScreens(),
           items: _navBarsItems(),
           confineInSafeArea: true,
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.blue[50],
           handleAndroidBackButtonPress: true,
           resizeToAvoidBottomInset: true,
           hideNavigationBarWhenKeyboardShows: true,

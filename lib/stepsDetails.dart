@@ -304,7 +304,7 @@ class _StepsDetailsState extends State<StepsDetails> {
     return Scaffold(
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
-            .collection("stats")
+            .collection("stepsGraph")
             .orderBy("date")
             .snapshots(),
         builder: (context, streamSnapshot) {
@@ -569,7 +569,8 @@ class _StepsDetailsState extends State<StepsDetails> {
                       months[document.data()['date'].toDate().month - 1],
                       int.parse(
                           averages[document.data()['date'].toDate().month - 1]
-                              .toStringAsFixed(0))));
+                              .toStringAsFixed(0))
+                      ));
                 }
               });
 
@@ -639,7 +640,8 @@ class _StepsDetailsState extends State<StepsDetails> {
                 )
               ];
             }
-
+            /////////////////////////////////////////////////////de adaugat zile sa am 14
+            ///
             String textStatsSteps2() {
               if (avgLastWeek < avgThisWeek) {
                 return "This week, the average number of steps per day is bigger than last week.\n You had an increase of " +
@@ -651,6 +653,7 @@ class _StepsDetailsState extends State<StepsDetails> {
                     (avgLastWeek - avgThisWeek).toStringAsFixed(0) +
                     " steps.";
               }
+              return "Equal number of steps";
             }
 
             var avgThisYear = 0;

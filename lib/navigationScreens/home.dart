@@ -1,10 +1,12 @@
+import 'package:FitbitApp/accelPage.dart';
+import 'package:FitbitApp/exercisePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:web_socket_channel/io.dart';
-import '../gpsDetails.dart';
+import '../findWatch.dart';
 import '../stepsDetails.dart';
 import 'package:geolocator/geolocator.dart';
 import '../hrDetails.dart';
@@ -15,7 +17,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final channel = IOWebSocketChannel.connect('ws://192.168.100.30:3000/');
+  // final channel = IOWebSocketChannel.connect('ws://127.0.0.1:3000/');
 
   Future _showNotification() async {
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
@@ -62,14 +64,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // return Scaffold(
-    //   body: ListView(
-    //     children: <Widget>[
-    //       LiveStepsPanel(),
-    //     ],
-    //   ),
-    // );
     return Scaffold(
+      backgroundColor: Colors.blue[100],
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('stats')
@@ -84,57 +80,57 @@ class _HomeState extends State<Home> {
           }
 
           if (snapshot.hasData) {
+            var steps;
             var lastHR;
             snapshot.data.docs.forEach(
               (DocumentSnapshot document) {
-                lastHR = document.data()['HR'];
-                if (int.parse(lastHR) > 100) {
+                if (document.data()['HR'] == "unavailable") {
+                  lastHR = 0;
+                } else {
+                  lastHR = document.data()['HR'];
+                }
+
+                if (lastHR > 100) {
                   print(lastHR);
                   _showNotification();
                 } else {
                   print(lastHR);
                 }
+                steps = document.data()['steps'];
               },
             );
 
             return ListView(
               children: <Widget>[
                 Container(
-                  margin: const EdgeInsets.only(top: 100),
+                  margin: const EdgeInsets.only(top: 50),
                   child: Center(
-                    child: StreamBuilder(
-                      stream: channel.stream,
-                      builder: (context, snapshot) {
-                        return Column(
-                          //mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/steps.png',
-                                filterQuality: FilterQuality.high),
-                            Text(
-                              (snapshot.hasData
-                                  ? '${snapshot.data.split(",")[0]}'
-                                  : ''),
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue[900]),
-                            ),
-                            Text(
-                              'STEPS',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue[900]),
-                            ),
-                          ],
-                        );
-                      },
+                    child: Column(
+                      //mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset('assets/images/steps.png',
+                            filterQuality: FilterQuality.high),
+                        Text(
+                          steps.toString(),
+                          style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[900]),
+                        ),
+                        Text(
+                          'STEPS',
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[900]),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 Container(
                   // color: Colors.blue[100],
-                  height: MediaQuery.of(context).size.height * 0.4,
+                  height: MediaQuery.of(context).size.height * 0.6,
                   child: Padding(
                     padding: EdgeInsets.all(1.0),
                     child: Padding(
@@ -145,7 +141,7 @@ class _HomeState extends State<Home> {
                             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                             child: Material(
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(22.0)),
+                                  borderRadius: BorderRadius.circular(10.0)),
                               elevation: 18.0,
                               clipBehavior: Clip.antiAlias,
                               color: Colors.blue[400],
@@ -153,7 +149,7 @@ class _HomeState extends State<Home> {
                                 height: 50,
                                 minWidth: double.infinity,
                                 child: Text(
-                                  'View your steps statistics',
+                                  'Steps data',
                                   style: TextStyle(
                                     fontSize: 25,
                                   ),
@@ -174,7 +170,7 @@ class _HomeState extends State<Home> {
                             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                             child: Material(
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(22.0)),
+                                  borderRadius: BorderRadius.circular(10.0)),
                               elevation: 18.0,
                               clipBehavior: Clip.antiAlias,
                               color: Colors.blue[400],
@@ -183,7 +179,7 @@ class _HomeState extends State<Home> {
                                 padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 minWidth: double.infinity,
                                 child: Text(
-                                  'HR',
+                                  'Heart Rate data',
                                   style: TextStyle(
                                     fontSize: 25,
                                   ),
@@ -204,7 +200,7 @@ class _HomeState extends State<Home> {
                             padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                             child: Material(
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(22.0)),
+                                  borderRadius: BorderRadius.circular(10.0)),
                               elevation: 18.0,
                               clipBehavior: Clip.antiAlias,
                               color: Colors.blue[400],
@@ -213,7 +209,7 @@ class _HomeState extends State<Home> {
                                 padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 minWidth: double.infinity,
                                 child: Text(
-                                  'GPS',
+                                  'Find my watch!',
                                   style: TextStyle(
                                     fontSize: 25,
                                   ),
@@ -224,7 +220,67 @@ class _HomeState extends State<Home> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => GpsDetails()),
+                                        builder: (context) => FindWatch()),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Material(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0)),
+                              elevation: 18.0,
+                              clipBehavior: Clip.antiAlias,
+                              color: Colors.blue[400],
+                              child: MaterialButton(
+                                height: 50,
+                                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                minWidth: double.infinity,
+                                child: Text(
+                                  'Create an exercise!',
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                  ),
+                                ),
+                                textColor: Colors.white,
+                                color: Colors.blue[400],
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ExercisePage()),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Material(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0)),
+                              elevation: 18.0,
+                              clipBehavior: Clip.antiAlias,
+                              color: Colors.blue[400],
+                              child: MaterialButton(
+                                height: 50,
+                                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                minWidth: double.infinity,
+                                child: Text(
+                                  'Accelerometer data',
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                  ),
+                                ),
+                                textColor: Colors.white,
+                                color: Colors.blue[400],
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AccelPage()),
                                   );
                                 },
                               ),

@@ -1,14 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import 'package:FitbitApp/goals.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'package:starflut/starflut.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-import 'dart:math' show cos, sqrt, asin;
 
 class Profile extends StatefulWidget {
   @override
@@ -16,107 +11,531 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  GoogleMapController mapController;
-
-  Map<MarkerId, Marker> markers = {};
-
+  TextEditingController myController = new TextEditingController();
   @override
   void initState() {
     super.initState();
-
-    /// origin marker
-    _addMarker(
-        LatLng(6.2514, 80.7642), "origin", BitmapDescriptor.defaultMarker);
-
-    /// destination marker
-    _addMarker(LatLng(6.9271, 79.8612), "destination",
-        BitmapDescriptor.defaultMarkerWithHue(90));
-    makeLines();
-  }
-
-  PolylinePoints polylinePoints = PolylinePoints();
-  Map<PolylineId, Polyline> polylines = {};
-  List<LatLng> polylineCoordinates = [];
-
-  void addPolyLine() {
-    PolylineId id = PolylineId("poly");
-    Polyline polyline = Polyline(
-        polylineId: id,
-        color: Colors.red,
-        points: polylineCoordinates,
-        width: 3);
-    polylines[id] = polyline;
-    setState(() {});
-  }
-
-  void makeLines() async {
-    await polylinePoints
-        .getRouteBetweenCoordinates(
-      'AIzaSyCXWqU2ungN9ZlraT9M-2HfoJYG7nd-3OA',
-      PointLatLng(47.16663166666667, 27.560335), //Starting LATLANG
-      PointLatLng(47.161550009661596, 27.560575380921364), //End LATLANG
-      travelMode: TravelMode.walking,
-    )
-        .then((value) {
-      value.points.forEach((PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      });
-    }).then((value) {
-      addPolyLine();
-    });
-  }
-
-  double _coordinateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
   }
 
   @override
+  void dispose() {
+    myController.dispose();
+    super.dispose();
+  }
+
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  @override
   Widget build(BuildContext context) {
-    var _placeDistance;
-    double totalDistance = 0.0;
-    for (int i = 0; i < polylineCoordinates.length - 1; i++) {
-      totalDistance += _coordinateDistance(
-        polylineCoordinates[i].latitude,
-        polylineCoordinates[i].longitude,
-        polylineCoordinates[i + 1].latitude,
-        polylineCoordinates[i + 1].longitude,
-      );
-    }
-    setState(() {
-      _placeDistance = totalDistance.toStringAsFixed(2);
-      print('DISTANCE: $_placeDistance km');
-    });
+    return FutureBuilder(
+      future: _initialization,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Error: ${snapshot.error}'),
+            ),
+          );
+        }
 
-    return SafeArea(
-      child: Scaffold(
-          body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-            target: LatLng(47.16663166666667, 27.560335), zoom: 15),
-        myLocationEnabled: true,
-        tiltGesturesEnabled: true,
-        compassEnabled: true,
-        scrollGesturesEnabled: true,
-        zoomGesturesEnabled: true,
-        onMapCreated: _onMapCreated,
-        markers: Set<Marker>.of(markers.values),
-        polylines: Set<Polyline>.of(polylines.values),
-      )),
+        if (snapshot.connectionState == ConnectionState.done) {
+          return StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.active) {
+                User user = snapshot.data;
+
+                if (user != null) {
+                  return SafeArea(
+                    child: Scaffold(
+                      body: StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('stats')
+                            .orderBy('date', descending: true)
+                            .limit(1)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (snapshot.hasData) {
+                            var steps;
+                            var calories;
+                            var floors;
+                            var distance;
+                            var activeMinutes;
+                            snapshot.data.docs
+                                .forEach((DocumentSnapshot document) {
+                              steps = document.data()['steps'];
+                              calories = document.data()['calories'];
+                              floors = document.data()['floors'];
+                              distance = document.data()['distance'];
+                              activeMinutes = document.data()['active minutes'];
+                            });
+
+                            return Scaffold(
+                              backgroundColor: Colors.blue[100],
+                              body: ListView(
+                                children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+                                    child: Center(
+                                      child: Text(
+                                        "Hello,",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                    child: Center(
+                                      child: Text(
+                                        user.email,
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
+                                    child: Text(
+                                      "Let's see some facts about your today's activity:",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  StreamBuilder(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('goals')
+                                        .doc('steps goal')
+                                        .snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        print(snapshot.data['value']);
+                                        var currentstepsgoal =
+                                            snapshot.data['value'];
+                                        var diffsteps =
+                                            int.parse(currentstepsgoal) - steps;
+                                        String messageStepsGoal() {
+                                          if (diffsteps > 0) {
+                                            return diffsteps.toString() +
+                                                " steps to reach daily goal!";
+                                          } else {
+                                            return "Daily goal completed!";
+                                          }
+                                        }
+
+                                        return Container(
+                                          margin: EdgeInsets.all(20),
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.4,
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.directions_walk,
+                                                      size: 40,
+                                                      color: Colors.orange[800],
+                                                    ),
+                                                    Text(
+                                                      'Total steps: ' +
+                                                          steps.toString(),
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 25,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      EdgeInsets.only(top: 20),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        "Current goal: " +
+                                                            currentstepsgoal,
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      EdgeInsets.only(top: 20),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        messageStepsGoal(),
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            image: new DecorationImage(
+                                              fit: BoxFit.cover,
+                                              colorFilter: new ColorFilter.mode(
+                                                  Colors.black.withOpacity(0.5),
+                                                  BlendMode.dstATop),
+                                              image: new ExactAssetImage(
+                                                  "assets/images/stepsanimation.gif"),
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.blue[300],
+                                              width: 5,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        );
+                                      }
+                                      return Container();
+                                    },
+                                  ),
+                                  StreamBuilder(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('goals')
+                                        .doc('calories goal')
+                                        .snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        print(snapshot.data['value']);
+                                        var currentCaloriesGoal =
+                                            snapshot.data['value'];
+                                        var diffcalories =
+                                            int.parse(currentCaloriesGoal) -
+                                                calories;
+                                        String messageCaloriesGoal() {
+                                          if (diffcalories > 0) {
+                                            return diffcalories.toString() +
+                                                " calories to reach daily goal!";
+                                          } else {
+                                            return "Daily goal completed!";
+                                          }
+                                        }
+
+                                        return Container(
+                                          margin: EdgeInsets.all(20),
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.4,
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .local_fire_department,
+                                                      size: 40,
+                                                      color: Colors.orange[900],
+                                                    ),
+                                                    Text(
+                                                      'Burned calories: ' +
+                                                          calories.toString(),
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 25,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      EdgeInsets.only(top: 20),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        "Current goal: " +
+                                                            currentCaloriesGoal,
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      EdgeInsets.only(top: 20),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        messageCaloriesGoal(),
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      )
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            image: new DecorationImage(
+                                              fit: BoxFit.cover,
+                                              colorFilter: new ColorFilter.mode(
+                                                  Colors.black.withOpacity(0.5),
+                                                  BlendMode.dstATop),
+                                              image: new ExactAssetImage(
+                                                  "assets/images/caloriesanimation.gif"),
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.blue[300],
+                                              width: 5,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        );
+                                      }
+                                      return Container();
+                                    },
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                                    height: MediaQuery.of(context).size.height *
+                                        0.4,
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.stairs_outlined,
+                                            size: 40,
+                                            color: Colors.yellow[600],
+                                          ),
+                                          Text(
+                                            'Total floors: ' +
+                                                floors.toString(),
+                                            style: TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      image: new DecorationImage(
+                                        fit: BoxFit.cover,
+                                        colorFilter: new ColorFilter.mode(
+                                            Colors.black.withOpacity(0.6),
+                                            BlendMode.dstATop),
+                                        image: new ExactAssetImage(
+                                            "assets/images/stairsanimation.gif"),
+                                      ),
+                                      border: Border.all(
+                                        color: Colors.blue[300],
+                                        width: 5,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                                    height: MediaQuery.of(context).size.height *
+                                        0.4,
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.directions_walk,
+                                            size: 40,
+                                            color: Colors.red[400],
+                                          ),
+                                          Text(
+                                            'Total distance: ' +
+                                                distance.toString() +
+                                                "m",
+                                            style: TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      image: new DecorationImage(
+                                        fit: BoxFit.cover,
+                                        colorFilter: new ColorFilter.mode(
+                                            Colors.black.withOpacity(0.5),
+                                            BlendMode.dstATop),
+                                        image: new ExactAssetImage(
+                                            "assets/images/walkinganimation.gif"),
+                                      ),
+                                      border: Border.all(
+                                        color: Colors.blue[300],
+                                        width: 5,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                                    height: MediaQuery.of(context).size.height *
+                                        0.4,
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.directions_run,
+                                            size: 40,
+                                            color: Colors.red[800],
+                                          ),
+                                          Text(
+                                            'Total Active Minutes: ' +
+                                                activeMinutes.toString(),
+                                            style: TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      image: new DecorationImage(
+                                        fit: BoxFit.cover,
+                                        colorFilter: new ColorFilter.mode(
+                                            Colors.black.withOpacity(0.5),
+                                            BlendMode.dstATop),
+                                        image: new ExactAssetImage(
+                                            "assets/images/runaanimation.gif"),
+                                      ),
+                                      border: Border.all(
+                                        color: Colors.blue[300],
+                                        width: 5,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                                    child: Material(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0)),
+                                      elevation: 18.0,
+                                      clipBehavior: Clip.antiAlias,
+                                      color: Colors.blue[400],
+                                      child: MaterialButton(
+                                        height: 50,
+                                        minWidth: double.infinity,
+                                        child: Text(
+                                          'Set up daily goals!',
+                                          style: TextStyle(
+                                            fontSize: 25,
+                                          ),
+                                        ),
+                                        textColor: Colors.white,
+                                        color: Colors.blue[400],
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => Goals()),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          return ListView.builder(
+                            itemCount: snapshot.data.docs.length,
+                            itemBuilder: (context, index) => Container(
+                              padding: EdgeInsets.all(8),
+                              child: Text('This works'),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }
+              }
+
+              return Scaffold(
+                body: Center(
+                  child: Text('Loading...'),
+                ),
+              );
+            },
+          );
+        }
+
+        return Scaffold(
+          body: Center(
+            child: Text('Loading...'),
+          ),
+        );
+      },
     );
-  }
-
-  void _onMapCreated(GoogleMapController controller) async {
-    mapController = controller;
-  }
-
-  _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
-    MarkerId markerId = MarkerId(id);
-    Marker marker =
-        Marker(markerId: markerId, icon: descriptor, position: position);
-    markers[markerId] = marker;
   }
 }

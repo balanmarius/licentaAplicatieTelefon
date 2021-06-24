@@ -90,7 +90,7 @@ class _HomeState extends State<Home> {
                   lastHR = document.data()['HR'];
                 }
 
-                if (lastHR > 100) {
+                if (lastHR > 170) {
                   print(lastHR);
                   _showNotification();
                 } else {
@@ -209,6 +209,36 @@ class _HomeState extends State<Home> {
                                 padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 minWidth: double.infinity,
                                 child: Text(
+                                  'Accelerometer data',
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                  ),
+                                ),
+                                textColor: Colors.white,
+                                color: Colors.blue[400],
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AccelPage()),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Material(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0)),
+                              elevation: 18.0,
+                              clipBehavior: Clip.antiAlias,
+                              color: Colors.blue[400],
+                              child: MaterialButton(
+                                height: 50,
+                                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                minWidth: double.infinity,
+                                child: Text(
                                   'Find my watch!',
                                   style: TextStyle(
                                     fontSize: 25,
@@ -251,36 +281,6 @@ class _HomeState extends State<Home> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => ExercisePage()),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: Material(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              elevation: 18.0,
-                              clipBehavior: Clip.antiAlias,
-                              color: Colors.blue[400],
-                              child: MaterialButton(
-                                height: 50,
-                                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                minWidth: double.infinity,
-                                child: Text(
-                                  'Accelerometer data',
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                  ),
-                                ),
-                                textColor: Colors.white,
-                                color: Colors.blue[400],
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AccelPage()),
                                   );
                                 },
                               ),

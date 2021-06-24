@@ -90,7 +90,8 @@ class _StepsDetailsState extends State<StepsDetails> {
         strokeWidthPx: 1.0,
       ),
       domainAxis: charts.OrdinalAxisSpec(
-        renderSpec: charts.SmallTickRendererSpec(),
+        renderSpec: charts.SmallTickRendererSpec(
+            labelRotation: 60, labelOffsetFromAxisPx: 5),
       ),
       behaviors: [
         new charts.ChartTitle(month,
@@ -302,6 +303,7 @@ class _StepsDetailsState extends State<StepsDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[100],
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection("stepsGraph")
@@ -363,7 +365,7 @@ class _StepsDetailsState extends State<StepsDetails> {
               'December'
             ];
             var count = streamSnapshot.data.size;
-            print(count);
+            // print(count);
 
             //////////////////////////////////////////////////////////////////
             streamSnapshot.data.docs.forEach((DocumentSnapshot document) {
@@ -400,7 +402,7 @@ class _StepsDetailsState extends State<StepsDetails> {
                 data[i]['avgStepsMonth'] = sum / data[i].length;
               }
             }
-            print(data);
+            // print(data);
 
             for (var i = 1; i <= dataLastYear.length; ++i) {
               if (dataLastYear[i] != null) {
@@ -422,7 +424,7 @@ class _StepsDetailsState extends State<StepsDetails> {
                 averages.add(data[i]['avgStepsMonth']);
               }
             }
-            print(averages);
+            // print(averages);
 
             var averagesLastYear = [];
             for (var i = 1; i <= dataLastYear.length; ++i) {
@@ -530,7 +532,7 @@ class _StepsDetailsState extends State<StepsDetails> {
                       document.data()['steps']));
                 },
               );
-              print(countDays);
+              // print(countDays);
               if (countDays >= 14) {
                 thisWeek = stepsPerDay.sublist(countDays - 7);
                 lastWeek = stepsPerDay.sublist(countDays - 14, countDays - 7);
@@ -569,8 +571,7 @@ class _StepsDetailsState extends State<StepsDetails> {
                       months[document.data()['date'].toDate().month - 1],
                       int.parse(
                           averages[document.data()['date'].toDate().month - 1]
-                              .toStringAsFixed(0))
-                      ));
+                              .toStringAsFixed(0))));
                 }
               });
 
@@ -640,6 +641,7 @@ class _StepsDetailsState extends State<StepsDetails> {
                 )
               ];
             }
+
             /////////////////////////////////////////////////////de adaugat zile sa am 14
             ///
             String textStatsSteps2() {

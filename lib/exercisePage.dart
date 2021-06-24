@@ -49,8 +49,8 @@ class _ExercisePageState extends State<ExercisePage> {
     await polylinePoints
         .getRouteBetweenCoordinates(
       'AIzaSyCXWqU2ungN9ZlraT9M-2HfoJYG7nd-3OA',
-      PointLatLng(originlat, originlong), //Starting LATLANG
-      PointLatLng(destinationlat, destinationlong), //End LATLANG
+      PointLatLng(originlat, originlong),
+      PointLatLng(destinationlat, destinationlong),
       travelMode: TravelMode.walking,
     )
         .then((value) {
@@ -75,10 +75,11 @@ class _ExercisePageState extends State<ExercisePage> {
 
   @override
   Widget build(BuildContext context) {
+    var counter = 0;
     CollectionReference exerciseStart =
         FirebaseFirestore.instance.collection('exercise');
     Future<void> startExercise(lat, long, now) {
-      // Call the user's CollectionReference to add a new user
+      counter = counter + 1;
       return exerciseStart
           .add({'latitude': lat, 'longitude': long, 'date': now})
           .then((value) => print("Started!"))
@@ -87,11 +88,12 @@ class _ExercisePageState extends State<ExercisePage> {
 
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.blue[100],
         body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('stats')
               .orderBy('date', descending: true)
-              .limit(2)
+              // .limit(2)
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -107,7 +109,7 @@ class _ExercisePageState extends State<ExercisePage> {
               print(lastCoordinates);
               var lat1 = lastCoordinates['latitude'];
               var long1 = lastCoordinates['longitude'];
-              var lat2, long2;
+              var lat2, long2, firsttime;
 
               void _getData() async {
                 await FirebaseFirestore.instance
@@ -119,8 +121,20 @@ class _ExercisePageState extends State<ExercisePage> {
                   snapshot.docs.forEach((DocumentSnapshot document) {
                     lat2 = document.data()['latitude'];
                     long2 = document.data()['longitude'];
+                    firsttime = document.data()['date'];
                   });
                 });
+              }
+
+              void _drawRoute(counter) {
+                for (var i = 1; i <= counter; ++i) {
+                  _makeLines(
+                    snapshot.data.docs[i - 1]['latitude'],
+                    snapshot.data.docs[i - 1]['longitude'],
+                    snapshot.data.docs[i]['latitude'],
+                    snapshot.data.docs[i]['longitude'],
+                  );
+                }
               }
 
               _getData();
@@ -130,7 +144,7 @@ class _ExercisePageState extends State<ExercisePage> {
 
               String _textAfterWorkout() {
                 if (_placeDistance != null) {
-                  return "Workout finished! Your route distance is " +
+                  return "Workout finished! Your average route distance is " +
                       _placeDistance.toString() +
                       "km !";
                 } else {
@@ -138,14 +152,13 @@ class _ExercisePageState extends State<ExercisePage> {
                 }
               }
 
+              var lasttime;
+
               return Container(
-                // margin: EdgeInsets.all(20),
-                // height: MediaQuery.of(context).size.height * 0.8,
                 width: MediaQuery.of(context).size.width,
                 child: ListView(
                   children: <Widget>[
                     Container(
-                      // height: MediaQuery.of(context).size.height * 0.1,
                       padding: EdgeInsets.all(18),
                       child: Text(
                         "This is the exercise page! Here you can track your workout and watch the traveled route during your exercise.",
@@ -182,8 +195,8 @@ class _ExercisePageState extends State<ExercisePage> {
                             child: Text("Start!"),
                             onPressed: () {
                               deleteMarkersAndPolyline();
-                              var now = new DateTime.now();
-                              startExercise(lat1, long1, now);
+                              firsttime = new DateTime.now();
+                              startExercise(lat1, long1, firsttime);
                             },
                           ),
                         ),
@@ -192,14 +205,16 @@ class _ExercisePageState extends State<ExercisePage> {
                           child: ElevatedButton(
                             child: Text("Stop!"),
                             onPressed: () {
+                              lasttime = new DateTime.now();
+                              counter =
+                                  lasttime.second - firsttime.toDate().second;
+                              var diff = lasttime
+                                  .difference(firsttime.toDate())
+                                  .inSeconds;
+                              print(diff);
                               double totalDistance = 0.0;
                               totalDistance +=
                                   calculateDistance(lat1, long1, lat2, long2);
-
-                              print(lat1);
-                              print(long1);
-                              print(lat2);
-                              print(long2);
                               setState(() {
                                 _placeDistance =
                                     totalDistance.toStringAsFixed(2);
@@ -208,6 +223,8 @@ class _ExercisePageState extends State<ExercisePage> {
                               _addMarker(LatLng(lat2, long2), "destination",
                                   BitmapDescriptor.defaultMarker);
                               _makeLines(lat1, long1, lat2, long2);
+                              // _drawRoute(diff);
+                              // diff=0;
                             },
                           ),
                         ),

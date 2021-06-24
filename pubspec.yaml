@@ -84,6 +84,7 @@ flutter:
   - assets/images/heartRate.png
   - assets/images/calories.png
   - assets/images/man.png
+  - assets/images/axes.png
   - assets/images/stepsanimation.gif
   - assets/images/caloriesanimation.gif
   - assets/images/runaanimation.gif

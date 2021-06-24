@@ -74,6 +74,7 @@ class _GpsDetailsState extends State<FindWatch> {
     _determinePosition();
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.blue[100],
         body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('stats')
@@ -104,7 +105,7 @@ class _GpsDetailsState extends State<FindWatch> {
                 child: Column(
                   children: <Widget>[
                     Text(
-                      "Your actual position is shown on the map below.\nClick on the the button so you can navigate to the Fitbit Versa 2 watch.",
+                      "Location of the watch is shown on the map below.\nClick on the the button so you can navigate to the Fitbit Versa 2 watch.",
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,

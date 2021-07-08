@@ -93,7 +93,7 @@ class _ExercisePageState extends State<ExercisePage> {
           stream: FirebaseFirestore.instance
               .collection('stats')
               .orderBy('date', descending: true)
-              // .limit(2)
+              .limit(1)
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -106,7 +106,7 @@ class _ExercisePageState extends State<ExercisePage> {
               var lastCoordinates = {};
               lastCoordinates['latitude'] = snapshot.data.docs[0]['latitude'];
               lastCoordinates['longitude'] = snapshot.data.docs[0]['longitude'];
-              print(lastCoordinates);
+              // print(lastCoordinates);
               var lat1 = lastCoordinates['latitude'];
               var long1 = lastCoordinates['longitude'];
               var lat2, long2, firsttime;
@@ -211,14 +211,14 @@ class _ExercisePageState extends State<ExercisePage> {
                               var diff = lasttime
                                   .difference(firsttime.toDate())
                                   .inSeconds;
-                              print(diff);
+                              // print(diff);
                               double totalDistance = 0.0;
                               totalDistance +=
                                   calculateDistance(lat1, long1, lat2, long2);
                               setState(() {
                                 _placeDistance =
                                     totalDistance.toStringAsFixed(2);
-                                print('DISTANCE: $_placeDistance km');
+                                // print('DISTANCE: $_placeDistance km');
                               });
                               _addMarker(LatLng(lat2, long2), "destination",
                                   BitmapDescriptor.defaultMarker);

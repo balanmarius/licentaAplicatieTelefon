@@ -121,7 +121,7 @@ class _ProfileState extends State<Profile> {
                                         .snapshots(),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
-                                        print(snapshot.data['value']);
+                                        // print(snapshot.data['value']);
                                         var currentstepsgoal =
                                             snapshot.data['value'];
                                         var diffsteps =
@@ -237,7 +237,7 @@ class _ProfileState extends State<Profile> {
                                         .snapshots(),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
-                                        print(snapshot.data['value']);
+                                        // print(snapshot.data['value']);
                                         var currentCaloriesGoal =
                                             snapshot.data['value'];
                                         var diffcalories =

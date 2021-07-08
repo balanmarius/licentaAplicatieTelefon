@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'dart:math';
 
@@ -32,11 +34,11 @@ class _HrDetailsState extends State<HrDetails> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.blue[100],
-        body: StreamBuilder(
-          stream: FirebaseFirestore.instance
+        body: FutureBuilder(
+          future: FirebaseFirestore.instance
               .collection("stats")
               .orderBy("date")
-              .snapshots(),
+              .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(

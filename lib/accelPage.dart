@@ -31,11 +31,11 @@ class _AccelPageState extends State<AccelPage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.blue[100],
-        body: StreamBuilder(
-          stream: FirebaseFirestore.instance
+        body: FutureBuilder(
+          future: FirebaseFirestore.instance
               .collection("stats")
               .orderBy("date")
-              .snapshots(),
+              .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(

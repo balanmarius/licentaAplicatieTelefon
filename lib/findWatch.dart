@@ -92,7 +92,7 @@ class _GpsDetailsState extends State<FindWatch> {
               var lastCoordinates = {};
               lastCoordinates['latitude'] = snapshot.data.docs[0]['latitude'];
               lastCoordinates['longitude'] = snapshot.data.docs[0]['longitude'];
-              print(lastCoordinates);
+              // print(lastCoordinates);
               _addMarker(
                   LatLng(lastCoordinates['latitude'],
                       lastCoordinates['longitude']),
@@ -137,8 +137,8 @@ class _GpsDetailsState extends State<FindWatch> {
                                   phonePosition.longitude),
                               "destination",
                               BitmapDescriptor.defaultMarker);
-                          print(phonePosition.latitude);
-                          print(phonePosition.longitude);
+                          // print(phonePosition.latitude);
+                          // print(phonePosition.longitude);
                           _makeLines(
                               lastCoordinates['latitude'],
                               lastCoordinates['longitude'],

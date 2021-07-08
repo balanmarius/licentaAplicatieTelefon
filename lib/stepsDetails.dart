@@ -532,6 +532,7 @@ class _StepsDetailsState extends State<StepsDetails> {
                       document.data()['steps']));
                 },
               );
+              // stepsPerDay.forEach((element) {print(element.steps);});
               // print(countDays);
               if (countDays >= 14) {
                 thisWeek = stepsPerDay.sublist(countDays - 7);
@@ -539,11 +540,15 @@ class _StepsDetailsState extends State<StepsDetails> {
               }
 
               thisWeek.forEach((element) {
+                // print(element.steps);
+                // print(element.when);
                 avgThisWeek += element.steps;
               });
               lastWeek.forEach((element) {
                 avgLastWeek += element.steps;
               });
+
+
 
               return [
                 charts.Series<Steps, String>(

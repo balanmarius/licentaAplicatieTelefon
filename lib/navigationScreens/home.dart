@@ -91,10 +91,10 @@ class _HomeState extends State<Home> {
                 }
 
                 if (lastHR > 170) {
-                  print(lastHR);
+                  // print(lastHR);
                   _showNotification();
                 } else {
-                  print(lastHR);
+                  // print(lastHR);
                 }
                 steps = document.data()['steps'];
               },
